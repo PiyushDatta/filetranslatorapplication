@@ -4,7 +4,7 @@ from javax.swing import (BoxLayout, ImageIcon, JButton, JFrame, JPanel,
 from java.awt import Component, GridLayout, GridBagLayout, GridBagConstraints, BorderLayout
 
 
-class main_app():
+class MainApp:
     def __init__(self):
         # Make the frame and set its properties
         self.frame = JFrame("File Translator", defaultCloseOperation=WindowConstants.EXIT_ON_CLOSE,
@@ -48,4 +48,4 @@ def enter_button(event):
 
 
 if __name__ == '__main__':
-    win = main_app()
+    win = MainApp()
