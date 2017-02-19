@@ -1,19 +1,13 @@
 import os
-import PyPDF2 as pyPdf
-import xlwt
+import openpyxl
+from io import StringIO
+from pdfminer.pdfparser import PDFParser, PDFDocument
+from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
+from pdfminer.converter import PDFPageAggregator
+from pdfminer.layout import LAParams, LTTextBox, LTTextLine
 
 path_to_your_pdf = "G:\\Piyush\\aaSelf_Programming\\aaPython\\filetranslatorapplication\\Bell.2015.Annual_sample.pdf"
-
-pdfFileObj = open(path_to_your_pdf, 'rb')
-pdf_toread = pyPdf.PdfFileReader(path_to_your_pdf)
-
-# 1 is the number of the page
-page_one = pdf_toread.getPage(89)
-
-# This will dump the content (unicode string)
-# According to the doc, the formatting is dependent on the
-# structure of the document
-print(page_one.extractText())
+# path_to_your_pdf = "G:\\Piyush\\aaSelf_Programming\\aaPython\\filetranslatorapplication\\sample_SF424_page2.pdf"
 
 
 class ExcelTranslator:
@@ -22,15 +16,69 @@ class ExcelTranslator:
         self.numb = page_number
 
         # Create the workbook and create sheets
-        wb = xlwt.Workbook()
-        ws1 = wb.add_sheet("Test First Sheet")
-        ws2 = wb.add_sheet("Test Second Sheet")
+        new_path = os.path.dirname(self.path) + "\\Testing.xlsx"
+        wb = openpyxl.Workbook()
+        wb.save(new_path)
 
-        # Write in the sheets
-        ws1.write(0, 0, "This is sheet 1")
-        ws2.write(0, 0, "This is sheet 2")
+        # Create sheets
+        ws1 = wb.active
+        ws2 = wb.create_sheet("Second sheet", 1)
+
+        #
+        # # Copy it so xlrd and xlwt can both us it
+        # wb_copy = xlrd.open_workbook('.xls')
+        # worksheet = wb.copy
+        #
+        # # Write in the sheets
+        # prev_line = line = None
+        #
+        # ws1.write(0, 0, convert(path, 89))
+        #
+        # for line in convert(path, page_number):
+        #     if represents_int(line):
+        #         for col_num in range(0, 256):
+        #             if ws1.cell(rowx=2, colx=col_num).value is None:
+        #                 ws1.write(2, col_num, line)
+        #             else:
+        #                 pass
+        #     else:
+        #         pass
+        # ws2.write(0, 0, "This is sheet 2")
 
         # Save the workbook
-        wb.save(os.path.dirname(path_to_your_pdf) + "\\Testing.xls")
+        wb.save(new_path)
 
-test_sheet = ExcelTranslator(path_to_your_pdf, 52)
+
+def convert(file_name, pages):
+
+    fp = open(file_name, 'rb')
+    parser = PDFParser(fp)
+    doc = PDFDocument()
+    parser.set_document(doc)
+    doc.set_parser(parser)
+    doc.initialize('')
+    rsrcmgr = PDFResourceManager()
+    laparams = LAParams()
+    device = PDFPageAggregator(rsrcmgr, laparams=laparams)
+    interpreter = PDFPageInterpreter(rsrcmgr, device)
+    # Process each page contained in the document.
+    content = ""
+    for pageNumber, page in enumerate(doc.get_pages()):
+        if pageNumber == pages:
+            interpreter.process_page(page)
+            layout = device.get_result()
+            for lt_obj in layout:
+                if isinstance(lt_obj, LTTextBox) or isinstance(lt_obj, LTTextLine):
+                    content += lt_obj.get_text()
+    return content
+
+
+def represents_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+print(convert(path_to_your_pdf, 89))
+test_sheet = ExcelTranslator(path_to_your_pdf, 89)
