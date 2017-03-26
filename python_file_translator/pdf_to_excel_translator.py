@@ -24,27 +24,19 @@ class ExcelTranslator:
         ws1 = wb.active
         ws2 = wb.create_sheet("Second sheet", 1)
 
-        #
-        # # Copy it so xlrd and xlwt can both us it
-        # wb_copy = xlrd.open_workbook('.xls')
-        # worksheet = wb.copy
-        #
-        # # Write in the sheets
-        # prev_line = line = None
-        #
-        # ws1.write(0, 0, convert(path, 89))
-        #
+        # Write in the sheets
+        prev_line = line = None
+
         # for line in convert(path, page_number):
         #     if represents_int(line):
-        #         for col_num in range(0, 256):
-        #             if ws1.cell(rowx=2, colx=col_num).value is None:
-        #                 ws1.write(2, col_num, line)
+        #         for col_num in range(1, 256):
+        #             if ws1.cell(row=2, column=col_num).value is None:
+        #                 ws1.cell(row=2, column=col_num).value = line
         #             else:
         #                 pass
         #     else:
         #         pass
-        # ws2.write(0, 0, "This is sheet 2")
-
+        ws1.cell(row=2, column=1).value = convert(path, page_number)
         # Save the workbook
         wb.save(new_path)
 
